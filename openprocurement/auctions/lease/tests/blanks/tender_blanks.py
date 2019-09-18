@@ -495,6 +495,31 @@ def create_auction_rectificationPeriod_set(self):
     self.assertEqual(timedelta_during_set_periods_ends, parse_date(auction['tenderPeriod']['endDate']) - parse_date(auction['rectificationPeriod']['endDate']))
 
 
+def create_auction_and_go_active_tendering(self):
+    response = self.app.get('/auctions')
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(len(response.json['data']), 0)
+
+    data = deepcopy(self.initial_data)
+    data['status'] = 'draft'
+    data['auctionPeriod']['startDate'] = '2019-10-29T11:00:00.000000+03:00'
+
+    response = self.app.post_json('/auctions', {'data': data})
+    self.assertEqual(response.status, '201 Created')
+    auction = response.json['data']
+    owner_token = response.json['access']['token']
+
+    self.assertEqual(auction['status'], 'draft')
+
+    # patch auction status by auction owner
+    response = self.app.patch_json('/auctions/{}?acc_token={}'.format(auction['id'], owner_token),
+                                   {"data": {"status": "active.tendering"}})
+    self.assertEqual(response.status, '200 OK')
+    self.assertEqual(response.content_type, 'application/json')
+    auction = response.json['data']
+    self.assertEqual(auction['status'], 'active.tendering')
+
+
 def create_auction_generated(self):
     data = self.initial_data.copy()
     #del data['awardPeriod']
