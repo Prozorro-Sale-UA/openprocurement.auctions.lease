@@ -64,6 +64,7 @@ from openprocurement.auctions.lease.tests.blanks.tender_blanks import (
     patch_auction_rectificationPeriod_invalidationDate,
     patch_old_auction_rectificationPeriod_invalidationDate,
     auction_Administrator_change,
+    create_auction_and_go_active_tendering,
     # AuctionFieldsEditingTest
     patch_auction_denied,
     patch_auction_during_rectification_period,
@@ -124,6 +125,7 @@ class AuctionResourceTest(BaseWebTest):
     test_dateModified_auction = snitch(dateModified_auction)
     test_guarantee = snitch(guarantee)
     test_auction_Administrator_change = snitch(auction_Administrator_change)
+    test_rectification_period_duration_when_change_status_to_active_tendering = snitch(create_auction_and_go_active_tendering)
 
 
 class AuctionFieldsEditingTest(BaseAuctionWebTest):
