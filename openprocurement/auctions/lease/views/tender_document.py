@@ -36,7 +36,11 @@ class AuctionDocumentResource(APIResource):
             self.request.errors.add('body', 'data', 'Can\'t {} document in current ({}) auction status'.format('add' if operation == 'add' else 'update', self.request.validated['auction_status']))
             self.request.errors.status = 403
             return
-        if auction.rectificationPeriod.endDate < get_now() and self.request.authenticated_role != 'auction':
+
+        # sometimes rectificationPeriod does not have endDate, we should check it
+        rectification_period_exists = auction.rectification_period.endDate is not None
+        rectification_period_not_finished = rectification_period_exists and auction.rectificationPeriod.endDate < get_now()
+        if rectification_period_exists and rectification_period_not_finished and self.request.authenticated_role != 'auction':
             self.request.errors.add('body', 'data', 'Document can be {} only during the rectificationPeriod period.'.format('added' if operation == 'add' else 'updated'))
             self.request.errors.status = 403
             return
